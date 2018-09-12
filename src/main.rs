@@ -1,5 +1,8 @@
+#![feature(int_to_from_bytes)]
 extern crate png;
 
+use std::u8;
+use std::u16;
 use std::fmt;
 use std::error;
 use std::path::Path;
@@ -44,40 +47,118 @@ impl From<png::EncodingError> for WriteImageFileErr {
     }
 }
 
-///*
-const BIT_DEPTH: png::BitDepth = png::BitDepth::Sixteen;
-const BYTES_PER_COLOR: usize = 2;
-//*/
-/*
-const BIT_DEPTH: png::BitDepth = png::BitDepth::Eight;
-const BYTES_PER_COLOR: usize = 1;
-*/
-
 const COLORS_PER_PIXEL: usize = 3;
-const BYTES_PER_PIXEL: usize = COLORS_PER_PIXEL * BYTES_PER_COLOR;
-type ImageBuffer = Vec<u8>;
 
-fn save_image(file_name: &String, buffer: &ImageBuffer, imgx: u32, imgy: u32) -> Result<(), WriteImageFileErr> {
+fn save_image<'a>(file_name: &'a str, buffer: &ImageBuffer) -> Result<(), WriteImageFileErr> {
     let path = Path::new(file_name);
     let file = File::create(path)?;
     let ref mut w = BufWriter::new(file);
-    let mut encoder = png::Encoder::new(w, imgx, imgy);
+    let mut encoder = png::Encoder::new(w, buffer.imgx as u32, buffer.imgy as u32);
 
-    encoder.set(png::ColorType::RGB).set(BIT_DEPTH);
+    encoder.set(png::ColorType::RGB).set(buffer.bit_depth);
     let mut writer = encoder.write_header()?;
 
-    writer.write_image_data(buffer)?;
+    writer.write_image_data(&buffer.buffer)?;
 
     Ok(())
 }
 
-fn main() {
-    let imgx = 200;
-    let imgy = 100;
-    let buffer: ImageBuffer = vec![0; BYTES_PER_PIXEL * imgx * imgy];
+#[derive(Clone)]
+enum BytesPerColor {
+    One = 1,
+    Two = 2,
+}
 
-    match save_image(&String::from("test.png"), &buffer, imgx as u32, imgy as u32) {
-        Ok(()) => (),
-        Err(err) => println!("error! {}", err),
-    };
+#[derive(Debug)]
+struct ImageBuffer {
+    pub bit_depth: png::BitDepth,
+    pub buffer: Vec<u8>,
+    pub bytes_per_pixel: usize,
+    pub bytes_per_row: usize,
+    pub imgx: usize,
+    pub imgy: usize,
+}
+
+impl ImageBuffer {
+    fn new(imgx: usize, imgy: usize, bytes_per_pixel: BytesPerColor) -> ImageBuffer {
+        let bit_depth = match bytes_per_pixel {
+            BytesPerColor::One => png::BitDepth::Eight,
+            BytesPerColor::Two => png::BitDepth::Sixteen,
+        };
+        let bytes_per_pixel = COLORS_PER_PIXEL * bytes_per_pixel as usize;
+        let bytes_per_row = bytes_per_pixel * imgx;
+        let buffer: Vec<u8> = Vec::with_capacity(bytes_per_pixel * imgx * imgy);
+
+        ImageBuffer {
+            bit_depth: bit_depth,
+            buffer: buffer,
+            bytes_per_pixel: bytes_per_pixel,
+            bytes_per_row: bytes_per_row,
+            imgx: imgx,
+            imgy: imgy,
+        }
+    }
+    fn from_color_buffer(color_buffer: ColorBuffer, bytes_per_color: BytesPerColor) -> ImageBuffer {
+        let mut buffer = ImageBuffer::new(color_buffer.imgx, color_buffer.imgy, bytes_per_color.clone());
+        match bytes_per_color {
+            BytesPerColor::Two => {
+                let max = (u16::MAX as ColorPrecision) - 1e-6;
+                for color in color_buffer.buffer {
+                    let bytes = ((max * color) as u16).to_be_bytes();
+                    buffer.buffer.extend(bytes.iter());
+                }
+            },
+            BytesPerColor::One => {
+                let max = (u8::MAX as ColorPrecision) - 1e-6;
+                for color in color_buffer.buffer{
+                    buffer.buffer.push((max * color) as u8);
+                }
+            },
+        };
+        buffer
+    }
+}
+
+type ColorPrecision = f64;
+
+struct ColorBuffer {
+    pub buffer: Vec<ColorPrecision>,
+    pub imgx: usize,
+    pub imgy: usize,
+}
+
+impl ColorBuffer {
+    fn new(imgx: usize, imgy: usize) -> ColorBuffer {
+        let buffer: Vec<ColorPrecision> = Vec::with_capacity(3 * imgx * imgy);
+
+        ColorBuffer {
+            buffer: buffer,
+            imgx: imgx,
+            imgy: imgy,
+        }
+    }
+}
+
+fn color_gradient_test(imgx: usize, imgy: usize) -> ColorBuffer {
+    let mut color_buffer = ColorBuffer::new(imgx, imgy);
+    for y in (0..imgy).rev() {
+        for x in 0..imgx {
+            let r = x as ColorPrecision / imgx as ColorPrecision;
+            let g = y as ColorPrecision / imgy as ColorPrecision;
+            let b = 0.2;
+            color_buffer.buffer.extend([r, g, b].iter());
+        }
+    }
+    color_buffer
+}
+
+fn draw_color_gradient() {
+    let color_buffer = color_gradient_test(200, 100);
+    let buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
+
+    save_image("images/001-color-gradient.png", &buffer).unwrap();
+}
+
+fn main() {
+    draw_color_gradient();
 }
