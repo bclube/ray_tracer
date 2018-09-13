@@ -34,23 +34,42 @@ fn draw_color_gradient() {
     save_image("images/001-color-gradient.png", &buffer).unwrap();
 }
 
-fn color(ray: &Ray) -> ColorSample {
-    let white = ColorSample {
-        red: 1.0,
-        green: 1.0,
-        blue: 1.0,
-    };
-    let light_blue = ColorSample {
-        red: 0.5,
-        green: 0.7,
-        blue: 1.0,
-    };
-    let y = ray.direction.unit().y;
-    let t = 0.5 * (y + 1.0);
-    (1.0 - t) * white + t * light_blue
+fn hit_sphere(center: Vec3, radius: Dimension, ray: &Ray) -> bool {
+    let oc = ray.origin - center;
+    let a = ray.direction.dot(ray.direction);
+    let b = 2.0 * oc.dot(ray.direction);
+    let c = oc.dot(oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    discriminant > 0.0
 }
 
-fn draw_empty_scene() {
+fn color(ray: &Ray) -> ColorSample {
+    let center = Vec3::new(0.0, 0.0, -1.0);
+    let radius = 0.5;
+    if hit_sphere(center, radius, ray) {
+        ColorSample {
+            red: 1.0,
+            green: 0.0,
+            blue: 0.0,
+        }
+    } else {
+        let white = ColorSample {
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+        };
+        let light_blue = ColorSample {
+            red: 0.5,
+            green: 0.7,
+            blue: 1.0,
+        };
+        let y = ray.direction.unit().y;
+        let t = 0.5 * (y + 1.0);
+        (1.0 - t) * white + t * light_blue
+    }
+}
+
+fn render_scene() {
     let imgx = 200;
     let imgy = 100;
     let lower_left = Vec3::new(-2.0, -1.0, -1.0);
@@ -72,10 +91,9 @@ fn draw_empty_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/003-empty-scene.png", &image_buffer).unwrap();
+    save_image("images/004-sphere-hit-test.png", &image_buffer).unwrap();
 }
 
 fn main() {
-    draw_color_gradient();
-    draw_empty_scene();
+    render_scene();
 }

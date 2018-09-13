@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul};
+use std::ops::{Add, Div, Mul, Sub};
 
 pub type Dimension = f64;
 
@@ -39,6 +39,13 @@ impl Vec3 {
         let zz = self.z * self.z;
         xx + yy + zz
     }
+
+    pub fn dot(&self, other: Vec3) -> Dimension {
+        let xx = self.x * other.x;
+        let yy = self.y * other.y;
+        let zz = self.z * other.z;
+        xx + yy + zz
+    }
 }
 
 impl Add for Vec3 {
@@ -69,6 +76,18 @@ impl Mul<Dimension> for Vec3 {
             x: self.x * scalar,
             y: self.y * scalar,
             z: self.z * scalar,
+        }
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, other: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
         }
     }
 }
