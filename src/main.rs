@@ -2,6 +2,7 @@
 extern crate png;
 
 mod color;
+mod geometry;
 
 use std::u8;
 use std::u16;
