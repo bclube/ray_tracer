@@ -1,6 +1,8 @@
 #![feature(int_to_from_bytes)]
 extern crate png;
 
+mod color;
+
 use std::u8;
 use std::u16;
 use std::fmt;
@@ -10,6 +12,7 @@ use std::fs::File;
 use std::io;
 use std::io::BufWriter;
 use png::HasParameters;
+use color::*;
 
 #[derive(Debug)]
 enum WriteImageFileErr {
@@ -102,14 +105,14 @@ impl ImageBuffer {
         let mut buffer = ImageBuffer::new(color_buffer.imgx, color_buffer.imgy, bytes_per_color.clone());
         match bytes_per_color {
             BytesPerColor::Two => {
-                let max = (u16::MAX as ColorPrecision) - 1e-6;
+                let max = (u16::MAX as SamplePrecision) - 1e-6;
                 for color in color_buffer.buffer {
                     let bytes = ((max * color) as u16).to_be_bytes();
                     buffer.buffer.extend(bytes.iter());
                 }
             },
             BytesPerColor::One => {
-                let max = (u8::MAX as ColorPrecision) - 1e-6;
+                let max = (u8::MAX as SamplePrecision) - 1e-6;
                 for color in color_buffer.buffer{
                     buffer.buffer.push((max * color) as u8);
                 }
@@ -119,17 +122,15 @@ impl ImageBuffer {
     }
 }
 
-type ColorPrecision = f64;
-
 struct ColorBuffer {
-    pub buffer: Vec<ColorPrecision>,
+    pub buffer: Vec<SamplePrecision>,
     pub imgx: usize,
     pub imgy: usize,
 }
 
 impl ColorBuffer {
     fn new(imgx: usize, imgy: usize) -> ColorBuffer {
-        let buffer: Vec<ColorPrecision> = Vec::with_capacity(3 * imgx * imgy);
+        let buffer: Vec<SamplePrecision> = Vec::with_capacity(3 * imgx * imgy);
 
         ColorBuffer {
             buffer: buffer,
@@ -137,16 +138,21 @@ impl ColorBuffer {
             imgy: imgy,
         }
     }
+    fn push_color(&mut self, color: ColorSample) {
+        self.buffer.extend([color.red, color.green, color.blue].iter());
+    }
 }
 
 fn color_gradient_test(imgx: usize, imgy: usize) -> ColorBuffer {
     let mut color_buffer = ColorBuffer::new(imgx, imgy);
     for y in (0..imgy).rev() {
         for x in 0..imgx {
-            let r = x as ColorPrecision / imgx as ColorPrecision;
-            let g = y as ColorPrecision / imgy as ColorPrecision;
-            let b = 0.2;
-            color_buffer.buffer.extend([r, g, b].iter());
+            let color = ColorSample {
+                red: x as SamplePrecision / imgx as SamplePrecision,
+                green: y as SamplePrecision / imgy as SamplePrecision,
+                blue: 0.2,
+            };
+            color_buffer.push_color(color);
         }
     }
     color_buffer
