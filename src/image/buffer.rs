@@ -41,8 +41,15 @@ impl ImageBuffer {
             imgy: imgy,
         }
     }
-    pub fn from_color_buffer(color_buffer: ColorBuffer, bytes_per_color: BytesPerColor) -> ImageBuffer {
-        let mut buffer = ImageBuffer::new(color_buffer.imgx, color_buffer.imgy, bytes_per_color.clone());
+    pub fn from_color_buffer(
+        color_buffer: ColorBuffer,
+        bytes_per_color: BytesPerColor,
+    ) -> ImageBuffer {
+        let mut buffer = ImageBuffer::new(
+            color_buffer.imgx,
+            color_buffer.imgy,
+            bytes_per_color.clone(),
+        );
         match bytes_per_color {
             BytesPerColor::Two => {
                 let max = (u16::MAX as SamplePrecision) - 1e-6;
@@ -50,13 +57,13 @@ impl ImageBuffer {
                     let bytes = ((max * color) as u16).to_be_bytes();
                     buffer.buffer.extend(bytes.iter());
                 }
-            },
+            }
             BytesPerColor::One => {
                 let max = (u8::MAX as SamplePrecision) - 1e-6;
-                for color in color_buffer.buffer{
+                for color in color_buffer.buffer {
                     buffer.buffer.push((max * color) as u8);
                 }
-            },
+            }
         };
         buffer
     }

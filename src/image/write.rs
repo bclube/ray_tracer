@@ -4,8 +4,8 @@ use png::HasParameters;
 use std::error;
 use std::fmt;
 use std::fs::File;
-use std::io::BufWriter;
 use std::io;
+use std::io::BufWriter;
 use std::path::Path;
 
 #[derive(Debug)]

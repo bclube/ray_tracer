@@ -17,7 +17,7 @@ impl ColorBuffer {
         }
     }
     pub fn push_color(&mut self, color: ColorSample) {
-        self.buffer.extend([color.red, color.green, color.blue].iter());
+        self.buffer
+            .extend([color.red, color.green, color.blue].iter());
     }
 }
-

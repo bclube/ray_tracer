@@ -5,8 +5,8 @@ mod color;
 mod geometry;
 mod image;
 
-use color::sample::*;
 use color::buffer::*;
+use color::sample::*;
 use image::buffer::*;
 use image::write::*;
 
