@@ -1,12 +1,12 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, Div, Mul};
 
 pub type Dimension = f64;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
-    x: Dimension,
-    y: Dimension,
-    z: Dimension,
+    pub x: Dimension,
+    pub y: Dimension,
+    pub z: Dimension,
 }
 
 impl Vec3 {
@@ -24,6 +24,21 @@ impl Vec3 {
     pub fn new(x: Dimension, y: Dimension, z: Dimension) -> Vec3 {
         Vec3 { x: x, y: y, z: z }
     }
+
+    pub fn unit(&self) -> Vec3 {
+        *self / self.length()
+    }
+
+    pub fn length(&self) -> Dimension {
+        self.squared_length().sqrt()
+    }
+
+    pub fn squared_length(&self) -> Dimension {
+        let xx = self.x * self.x;
+        let yy = self.y * self.y;
+        let zz = self.z * self.z;
+        xx + yy + zz
+    }
 }
 
 impl Add for Vec3 {
@@ -35,6 +50,14 @@ impl Add for Vec3 {
             y: self.y + other.y,
             z: self.z + other.z,
         }
+    }
+}
+
+impl Div<Dimension> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, scalar: Dimension) -> Vec3 {
+        self * scalar.recip()
     }
 }
 
