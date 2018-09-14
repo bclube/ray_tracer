@@ -34,24 +34,39 @@ fn draw_color_gradient() {
     save_image("images/001-color-gradient.png", &buffer).unwrap();
 }
 
-fn hit_sphere(center: Vec3, radius: Dimension, ray: &Ray) -> bool {
+fn hit_sphere(center: Vec3, radius: Dimension, ray: &Ray) -> Option<Vec3> {
     let oc = ray.origin - center;
     let a = ray.direction.dot(ray.direction);
     let b = 2.0 * oc.dot(ray.direction);
     let c = oc.dot(oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.0
+    if discriminant > 0.0 {
+        let t = (b + discriminant.sqrt()) / (-2.0 * a);
+        let normal = ray.point_at_parameter(t) - center;
+        Some(normal)
+    } else {
+        None
+    }
+}
+
+fn normal_to_color(normal: Vec3) -> ColorSample {
+    let half_unit_normal = normal.unit() * 0.5;
+    ColorSample {
+        red: half_unit_normal.x + 0.5,
+        green: half_unit_normal.y + 0.5,
+        blue: half_unit_normal.z + 0.5,
+    }
 }
 
 fn color(ray: &Ray) -> ColorSample {
-    let center = Vec3::new(0.0, 0.0, -1.0);
+    const SPHERE_CENTER: Vec3 = Vec3 {
+        x: 0.0,
+        y: 0.0,
+        z: -1.0,
+    };
     let radius = 0.5;
-    if hit_sphere(center, radius, ray) {
-        ColorSample {
-            red: 1.0,
-            green: 0.0,
-            blue: 0.0,
-        }
+    if let Some(normal) = hit_sphere(SPHERE_CENTER, radius, ray) {
+        normal_to_color(normal)
     } else {
         let white = ColorSample {
             red: 1.0,
@@ -91,7 +106,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/004-sphere-hit-test.png", &image_buffer).unwrap();
+    save_image("images/005-sphere-normal-test.png", &image_buffer).unwrap();
 }
 
 fn main() {
