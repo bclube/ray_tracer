@@ -6,7 +6,7 @@ use std::u8;
 
 const COLORS_PER_PIXEL: usize = 3;
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub enum BytesPerColor {
     One = 1,
     Two = 2,
@@ -48,7 +48,7 @@ impl ImageBuffer {
         let mut buffer = ImageBuffer::new(
             color_buffer.imgx,
             color_buffer.imgy,
-            bytes_per_color.clone(),
+            bytes_per_color,
         );
         match bytes_per_color {
             BytesPerColor::Two => {
