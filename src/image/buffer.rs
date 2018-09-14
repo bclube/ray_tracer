@@ -54,14 +54,17 @@ impl ImageBuffer {
             BytesPerColor::Two => {
                 let max = (u16::MAX as SamplePrecision) + 1.0 - 1e-6;
                 for color in color_buffer.buffer {
-                    let bytes = ((max * color) as u16).to_be_bytes();
+                    let color = color.min(1.0).max(0.0);
+                    let bytes = ((max * color).trunc() as u16).to_be_bytes();
                     buffer.buffer.extend(bytes.iter());
                 }
             }
             BytesPerColor::One => {
                 let max = (u8::MAX as SamplePrecision) + 1.0 - 1e-6;
                 for color in color_buffer.buffer {
-                    buffer.buffer.push((max * color) as u8);
+                    let color = color.min(1.0).max(0.0);
+                    let byte = (max * color).trunc() as u8;
+                    buffer.buffer.push(byte);
                 }
             }
         };
