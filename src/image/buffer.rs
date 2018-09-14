@@ -1,8 +1,6 @@
 use color::buffer::*;
-use color::sample::*;
+use image::convert::*;
 use png;
-use std::u16;
-use std::u8;
 
 const COLORS_PER_PIXEL: usize = 3;
 
@@ -52,18 +50,14 @@ impl ImageBuffer {
         );
         match bytes_per_color {
             BytesPerColor::Two => {
-                let max = (u16::MAX as SamplePrecision) + 1.0 - 1e-6;
                 for color in color_buffer.buffer {
-                    let color = color.min(1.0).max(0.0);
-                    let bytes = ((max * color).trunc() as u16).to_be_bytes();
+                    let bytes = to_sixteen_bits(color).to_be_bytes();
                     buffer.buffer.extend(bytes.iter());
                 }
             }
             BytesPerColor::One => {
-                let max = (u8::MAX as SamplePrecision) + 1.0 - 1e-6;
                 for color in color_buffer.buffer {
-                    let color = color.min(1.0).max(0.0);
-                    let byte = (max * color).trunc() as u8;
+                    let byte = to_eight_bits(color);
                     buffer.buffer.push(byte);
                 }
             }
