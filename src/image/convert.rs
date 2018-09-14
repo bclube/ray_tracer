@@ -1,6 +1,6 @@
-use std::u8;
-use std::u16;
 use color::sample::*;
+use std::u16;
+use std::u8;
 
 const EIGHT_BIT_MAX: SamplePrecision = (u8::MAX as SamplePrecision) + 1.0 - 1e-6;
 const SIXTEEN_BIT_MAX: SamplePrecision = (u16::MAX as SamplePrecision) + 1.0 - 1e-6;
@@ -28,7 +28,7 @@ mod test_conversion_to_eight_bits {
 
     #[test]
     fn clamp_min_to_zero() {
-        for v in vec![-1e18, -1.0,  -1e-18] {
+        for v in vec![-1e18, -1.0, -1e-18] {
             assert_eq!(0, to_eight_bits(v), "{}", v);
         }
     }
@@ -60,7 +60,7 @@ mod test_conversion_to_sixteen_bits {
 
     #[test]
     fn clamp_min_to_zero() {
-        for v in vec![-1e18, -1.0,  -1e-18] {
+        for v in vec![-1e18, -1.0, -1e-18] {
             assert_eq!(0, to_sixteen_bits(v), "{}", v);
         }
     }
@@ -80,8 +80,22 @@ mod test_conversion_to_sixteen_bits {
             let v = i as SamplePrecision;
             let lower = (v / max) + variance;
             let upper = ((v + 1.0) / max) - variance;
-            assert_eq!(i, to_sixteen_bits(lower), "lower {}, {}, {}", v, lower, upper);
-            assert_eq!(i, to_sixteen_bits(upper), "upper {}, {}, {}", v, lower, upper);
+            assert_eq!(
+                i,
+                to_sixteen_bits(lower),
+                "lower {}, {}, {}",
+                v,
+                lower,
+                upper
+            );
+            assert_eq!(
+                i,
+                to_sixteen_bits(upper),
+                "upper {}, {}, {}",
+                v,
+                lower,
+                upper
+            );
         }
     }
 }

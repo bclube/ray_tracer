@@ -43,11 +43,7 @@ impl ImageBuffer {
         color_buffer: ColorBuffer,
         bytes_per_color: BytesPerColor,
     ) -> ImageBuffer {
-        let mut buffer = ImageBuffer::new(
-            color_buffer.imgx,
-            color_buffer.imgy,
-            bytes_per_color,
-        );
+        let mut buffer = ImageBuffer::new(color_buffer.imgx, color_buffer.imgy, bytes_per_color);
         match bytes_per_color {
             BytesPerColor::Two => {
                 for color in color_buffer.buffer {
