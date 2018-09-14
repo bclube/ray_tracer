@@ -3,29 +3,16 @@ extern crate png;
 
 mod color;
 mod geometry;
+mod hit_detection;
 mod image;
 
 use color::buffer::*;
 use color::sample::*;
 use geometry::ray::*;
 use geometry::vec3::*;
+use hit_detection::sphere::*;
 use image::buffer::*;
 use image::write::*;
-
-fn hit_sphere(center: Vec3, radius: Dimension, ray: &Ray) -> Option<Vec3> {
-    let oc = ray.origin - center;
-    let a = ray.direction.dot(ray.direction);
-    let b = 2.0 * oc.dot(ray.direction);
-    let c = oc.dot(oc) - radius * radius;
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant > 0.0 {
-        let t = (b + discriminant.sqrt()) / (-2.0 * a);
-        let normal = ray.point_at_parameter(t) - center;
-        Some(normal)
-    } else {
-        None
-    }
-}
 
 fn normal_to_color(normal: Vec3) -> ColorSample {
     let half_unit_normal = normal.unit() * 0.5;
@@ -43,8 +30,8 @@ fn color(ray: &Ray) -> ColorSample {
         z: -1.0,
     };
     let radius = 0.5;
-    if let Some(normal) = hit_sphere(SPHERE_CENTER, radius, ray) {
-        normal_to_color(normal)
+    if let Some(hit_record) = hit_sphere(ray, 0.0, MAX_DIMENSION, SPHERE_CENTER, radius) {
+        normal_to_color(hit_record.normal)
     } else {
         let white = ColorSample {
             red: 1.0,

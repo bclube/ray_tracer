@@ -1,6 +1,8 @@
+use std::f64;
 use std::ops::{Add, Div, Mul, Sub};
 
 pub type Dimension = f64;
+pub const MAX_DIMENSION: Dimension = f64::MAX;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
