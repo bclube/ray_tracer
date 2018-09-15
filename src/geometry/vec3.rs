@@ -82,6 +82,14 @@ impl Mul<Dimension> for Vec3 {
     }
 }
 
+impl Mul<Vec3> for Dimension {
+    type Output = Vec3;
+
+    fn mul(self, vec: Vec3) -> Vec3 {
+        vec * self
+    }
+}
+
 impl Sub for Vec3 {
     type Output = Vec3;
 

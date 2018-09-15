@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul};
+use std::ops::{Add, AddAssign, Div, Mul};
 
 pub type SamplePrecision = f64;
 
@@ -7,6 +7,14 @@ pub struct ColorSample {
     pub red: SamplePrecision,
     pub green: SamplePrecision,
     pub blue: SamplePrecision,
+}
+
+impl ColorSample {
+    pub const BLACK: ColorSample = ColorSample {
+        red: 0.0,
+        green: 0.0,
+        blue: 0.0,
+    };
 }
 
 impl Add for ColorSample {
@@ -18,6 +26,21 @@ impl Add for ColorSample {
             green: self.green + other.green,
             blue: self.blue + other.blue,
         }
+    }
+}
+
+impl AddAssign for ColorSample {
+    fn add_assign(&mut self, other: ColorSample) {
+        *self = *self + other;
+    }
+}
+
+impl Div<usize> for ColorSample {
+    type Output = ColorSample;
+
+    fn div(self, count: usize) -> ColorSample {
+        let recip = (count as SamplePrecision).recip();
+        self * recip
     }
 }
 
