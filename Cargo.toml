@@ -5,3 +5,4 @@ authors = ["USER"]
 
 [dependencies]
 png = "*"
+rand = "*"
