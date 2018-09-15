@@ -10,6 +10,7 @@ use color::buffer::*;
 use color::sample::*;
 use geometry::ray::*;
 use geometry::vec3::*;
+use hit_detection::hitable::*;
 use hit_detection::sphere::*;
 use image::buffer::*;
 use image::write::*;
@@ -23,14 +24,8 @@ fn normal_to_color(normal: Vec3) -> ColorSample {
     }
 }
 
-fn color(ray: &Ray) -> ColorSample {
-    const SPHERE_CENTER: Vec3 = Vec3 {
-        x: 0.0,
-        y: 0.0,
-        z: -1.0,
-    };
-    let radius = 0.5;
-    if let Some(hit_record) = hit_sphere(ray, 0.0, MAX_DIMENSION, SPHERE_CENTER, radius) {
+fn color(ray: &Ray, scene: &Hitable) -> ColorSample {
+    if let Some(hit_record) = scene.hit(ray, 0.0, MAX_DIMENSION) {
         normal_to_color(hit_record.normal)
     } else {
         let white = ColorSample {
@@ -57,6 +52,16 @@ fn render_scene() {
     let vertical = Vec3::new(0.0, 2.0, 0.0);
     let origin = Vec3::ZERO;
     let mut color_buffer = ColorBuffer::new(imgx, imgy);
+    let scene: Vec<Box<Hitable>> = vec![
+        Box::new(Sphere {
+            center: Vec3::new(0.0, -100.5, -1.0),
+            radius: 100.0,
+        }),
+        Box::new(Sphere {
+            center: Vec3::new(0.0, 0.0, -1.0),
+            radius: 0.5,
+        }),
+    ];
     for j in (0..imgy).rev() {
         let v = j as Dimension / imgy as Dimension;
         for i in 0..imgx {
@@ -66,12 +71,12 @@ fn render_scene() {
                 origin: origin,
                 direction: direction,
             };
-            let color = color(&r);
+            let color = color(&r, &scene.as_slice());
             color_buffer.push_color(color);
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/005-sphere-normal-test.png", &image_buffer).unwrap();
+    save_image("images/005b-scene-with-multiple-objects.png", &image_buffer).unwrap();
 }
 
 fn main() {
