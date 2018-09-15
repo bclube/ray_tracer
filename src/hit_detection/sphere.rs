@@ -2,6 +2,17 @@ use geometry::ray::*;
 use geometry::vec3::*;
 use hit_detection::hitable::*;
 
+pub struct Sphere {
+    pub center: Vec3,
+    pub radius: Dimension,
+}
+
+impl Hitable for Sphere {
+    fn hit(&self, r: &Ray, t_min: Dimension, t_max: Dimension) -> Option<HitRecord> {
+        hit_sphere(r, t_min, t_max, self.center, self.radius)
+    }
+}
+
 pub fn hit_sphere(
     ray: &Ray,
     t_min: Dimension,
