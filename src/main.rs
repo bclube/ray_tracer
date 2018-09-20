@@ -30,7 +30,9 @@ fn normal_to_color(normal: Vec3) -> ColorSample {
 
 fn color(ray: &Ray, scene: &Hitable) -> ColorSample {
     if let Some(hit_record) = scene.hit(ray, 0.0, MAX_DIMENSION) {
-        normal_to_color(hit_record.normal)
+        let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
+        let new_ray = Ray { origin: hit_record.p, direction: target - hit_record.p };
+        return 0.5 * color(&new_ray, scene)
     } else {
         let white = ColorSample {
             red: 1.0,
@@ -71,7 +73,6 @@ fn render_scene() {
     ];
     let mut rng = thread_rng();
     for j in (0..imgy).rev() {
-        let v = j as Dimension / imgy as Dimension;
         for i in 0..imgx {
             let mut color_sample = ColorSample::BLACK;
             for _ in 0..n_samples {
@@ -84,7 +85,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/006-anti-aliasing.png", &image_buffer).unwrap();
+    save_image("images/007-lambertian-surface.png", &image_buffer).unwrap();
 }
 
 fn main() {

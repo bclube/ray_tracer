@@ -1,3 +1,4 @@
+use rand::{thread_rng, Rng};
 use std::f64;
 use std::ops::{Add, Div, Mul, Sub};
 
@@ -17,14 +18,20 @@ impl Vec3 {
         y: 0.0,
         z: 0.0,
     };
-    pub const ONE: Vec3 = Vec3 {
-        x: 1.0,
-        y: 1.0,
-        z: 1.0,
-    };
 
     pub fn new(x: Dimension, y: Dimension, z: Dimension) -> Vec3 {
         Vec3 { x: x, y: y, z: z }
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        let mut rng = thread_rng();
+        loop {
+            let rx = rng.gen_range::<Dimension>(-1.0, 1.0);
+            let ry = rng.gen_range::<Dimension>(-1.0, 1.0);
+            let rz = rng.gen_range::<Dimension>(-1.0, 1.0);
+            let p = Vec3::new(rx, ry, rz);
+            if p.squared_length() < 1.0 { return p }
+        }
     }
 
     pub fn unit(&self) -> Vec3 {
