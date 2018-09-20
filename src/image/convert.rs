@@ -22,6 +22,11 @@ pub fn to_sixteen_bits(color: SamplePrecision) -> u16 {
     (SIXTEEN_BIT_MAX * color).trunc() as u16
 }
 
+#[inline(always)]
+pub fn gamma_2(color: SamplePrecision) -> SamplePrecision {
+    color.sqrt()
+}
+
 #[cfg(test)]
 mod test_conversion_to_eight_bits {
     use super::*;
