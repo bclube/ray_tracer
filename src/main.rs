@@ -29,7 +29,7 @@ fn normal_to_color(normal: Vec3) -> ColorSample {
 }
 
 fn color(ray: &Ray, scene: &Hitable) -> ColorSample {
-    if let Some(hit_record) = scene.hit(ray, 0.0, MAX_DIMENSION) {
+    if let Some(hit_record) = scene.hit(ray, 1e-3, MAX_DIMENSION) {
         let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
         let new_ray = Ray { origin: hit_record.p, direction: target - hit_record.p };
         return 0.5 * color(&new_ray, scene)
@@ -85,7 +85,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/007b-with-gamma-2.png", &image_buffer).unwrap();
+    save_image("images/007c-clean-surface-shadows.png", &image_buffer).unwrap();
 }
 
 fn main() {
