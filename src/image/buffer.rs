@@ -47,13 +47,13 @@ impl ImageBuffer {
         match bytes_per_color {
             BytesPerColor::Two => {
                 for color in color_buffer.buffer {
-                    let bytes = to_sixteen_bits(color).to_be_bytes();
+                    let bytes = to_sixteen_bits(color.sqrt()).to_be_bytes();
                     buffer.buffer.extend(bytes.iter());
                 }
             }
             BytesPerColor::One => {
                 for color in color_buffer.buffer {
-                    let byte = to_eight_bits(color);
+                    let byte = to_eight_bits(color.sqrt());
                     buffer.buffer.push(byte);
                 }
             }

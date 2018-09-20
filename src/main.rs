@@ -85,7 +85,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/007-lambertian-surface.png", &image_buffer).unwrap();
+    save_image("images/007b-with-gamma-2.png", &image_buffer).unwrap();
 }
 
 fn main() {
