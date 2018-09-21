@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, Mul};
+use std::ops::{Add, AddAssign, Div, Mul, MulAssign};
 
 pub type SamplePrecision = f64;
 
@@ -14,6 +14,11 @@ impl ColorSample {
         red: 0.0,
         green: 0.0,
         blue: 0.0,
+    };
+    pub const WHITE: ColorSample = ColorSample {
+        red: 1.0,
+        green: 1.0,
+        blue: 1.0,
     };
 }
 
@@ -61,5 +66,29 @@ impl Mul<ColorSample> for SamplePrecision {
 
     fn mul(self, color_sample: ColorSample) -> ColorSample {
         color_sample * self
+    }
+}
+
+impl Mul<ColorSample> for ColorSample {
+    type Output = ColorSample;
+
+    fn mul(self, other: ColorSample) -> ColorSample {
+        ColorSample {
+            red: self.red * other.red,
+            green: self.green * other.green,
+            blue: self.blue * other.blue,
+        }
+    }
+}
+
+impl MulAssign<ColorSample> for ColorSample {
+    fn mul_assign(&mut self, other: ColorSample) {
+        *self = *self * other;
+    }
+}
+
+impl MulAssign<SamplePrecision> for ColorSample {
+    fn mul_assign(&mut self, scalar: SamplePrecision) {
+        *self = *self * scalar;
     }
 }
