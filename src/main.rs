@@ -66,9 +66,9 @@ fn color(ray: Ray, scene: &Model) -> ColorSample {
 }
 
 fn render_scene() {
-    let imgx = 200;
-    let imgy = 100;
-    let n_samples = 100;
+    let imgx = 400;
+    let imgy = 200;
+    let n_samples = 5000;
     let camera = Camera {
         lower_left: Vec3::new(-2.0, -1.0, -1.0),
         horizontal: Vec3::new(4.0, 0.0, 0.0),
@@ -84,9 +84,9 @@ fn render_scene() {
             }),
             material: Rc::new(Lambertian {
                 albedo: ColorSample {
-                    red: 0.8,
-                    green: 0.8,
-                    blue: 0.0,
+                    red: 0.5,
+                    green: 0.5,
+                    blue: 0.5,
                 },
             }),
         }),
@@ -94,6 +94,13 @@ fn render_scene() {
             shape: Box::new(Sphere {
                 center: Vec3::new(0.0, 0.0, -1.0),
                 radius: 0.5,
+            }),
+            material: Rc::new(Dielectric { ref_idx: 1.5 }),
+        }),
+        Box::new(WorldEntity {
+            shape: Box::new(Sphere {
+                center: Vec3::new(0.0, 0.0, -1.0),
+                radius: -0.475,
             }),
             material: Rc::new(Dielectric { ref_idx: 1.5 }),
         }),
@@ -139,7 +146,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/009-dielectric.png", &image_buffer).unwrap();
+    save_image("images/009a-hollow-glass-sphere.png", &image_buffer).unwrap();
 }
 
 fn main() {
