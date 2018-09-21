@@ -1,6 +1,6 @@
 use rand::{thread_rng, Rng};
 use std::f64;
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 pub type Dimension = f64;
 pub const MAX_DIMENSION: Dimension = f64::MAX;
@@ -96,6 +96,18 @@ impl Mul<Vec3> for Dimension {
 
     fn mul(self, vec: Vec3) -> Vec3 {
         vec * self
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Vec3 {
+        Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
     }
 }
 
