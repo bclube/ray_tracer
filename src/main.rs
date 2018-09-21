@@ -107,26 +107,28 @@ fn render_scene() {
                 center: Vec3::new(1.0, 0.0, -1.0),
                 radius: 0.5,
             }),
-            material: Rc::new(Metal {
-                albedo: ColorSample {
+            material: Rc::new(Metal::new(
+                ColorSample {
                     red: 0.8,
                     green: 0.6,
                     blue: 0.2,
                 },
-            }),
+                1.0,
+            )),
         }),
         Box::new(WorldEntity {
             shape: Box::new(Sphere {
                 center: Vec3::new(-1.0, 0.0, -1.0),
                 radius: 0.5,
             }),
-            material: Rc::new(Metal {
-                albedo: ColorSample {
+            material: Rc::new(Metal::new(
+                ColorSample {
                     red: 0.8,
                     green: 0.8,
                     blue: 0.8,
                 },
-            }),
+                0.3,
+            )),
         }),
     ];
     let mut rng = thread_rng();
@@ -143,7 +145,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/008-textures.png", &image_buffer).unwrap();
+    save_image("images/008b-metal-fuzz.png", &image_buffer).unwrap();
 }
 
 fn main() {
