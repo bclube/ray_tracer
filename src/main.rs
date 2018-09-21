@@ -20,6 +20,7 @@ use image::buffer::*;
 use image::write::*;
 use rand::{thread_rng, Rng};
 use std::rc::*;
+use surface::dielectric::*;
 use surface::lambertian::*;
 use surface::metal::*;
 use world::entity::*;
@@ -94,17 +95,11 @@ fn render_scene() {
                 center: Vec3::new(0.0, 0.0, -1.0),
                 radius: 0.5,
             }),
-            material: Rc::new(Lambertian {
-                albedo: ColorSample {
-                    red: 0.8,
-                    green: 0.3,
-                    blue: 0.3,
-                },
-            }),
+            material: Rc::new(Dielectric { ref_idx: 1.5 }),
         }),
         Box::new(WorldEntity {
             shape: Box::new(Sphere {
-                center: Vec3::new(1.0, 0.0, -1.0),
+                center: Vec3::new(1.0, 0.0, 1.5),
                 radius: 0.5,
             }),
             material: Rc::new(Metal::new(
@@ -113,22 +108,21 @@ fn render_scene() {
                     green: 0.6,
                     blue: 0.2,
                 },
-                1.0,
+                0.0,
             )),
         }),
         Box::new(WorldEntity {
             shape: Box::new(Sphere {
-                center: Vec3::new(-1.0, 0.0, -1.0),
+                center: Vec3::new(-1.0, 0.0, 2.0),
                 radius: 0.5,
             }),
-            material: Rc::new(Metal::new(
-                ColorSample {
-                    red: 0.8,
-                    green: 0.8,
-                    blue: 0.8,
+            material: Rc::new(Lambertian {
+                albedo: ColorSample {
+                    red: 0.1,
+                    green: 0.2,
+                    blue: 0.5,
                 },
-                0.3,
-            )),
+            }),
         }),
     ];
     let mut rng = thread_rng();
@@ -145,7 +139,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/008b-metal-fuzz.png", &image_buffer).unwrap();
+    save_image("images/009-dielectric.png", &image_buffer).unwrap();
 }
 
 fn main() {
