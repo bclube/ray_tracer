@@ -1,5 +1,6 @@
 use geometry::vec3::*;
 
+#[derive(Copy, Clone)]
 pub struct Ray {
     pub direction: Vec3,
     pub origin: Vec3,

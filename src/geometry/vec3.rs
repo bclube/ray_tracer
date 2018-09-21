@@ -30,7 +30,9 @@ impl Vec3 {
             let ry = rng.gen_range::<Dimension>(-1.0, 1.0);
             let rz = rng.gen_range::<Dimension>(-1.0, 1.0);
             let p = Vec3::new(rx, ry, rz);
-            if p.squared_length() < 1.0 { return p }
+            if p.squared_length() < 1.0 {
+                return p;
+            }
         }
     }
 
