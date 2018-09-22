@@ -69,12 +69,13 @@ fn render_scene() {
     let imgx = 400;
     let imgy = 200;
     let n_samples = 5000;
-    let camera = Camera {
-        lower_left: Vec3::new(-2.0, -1.0, -1.0),
-        horizontal: Vec3::new(4.0, 0.0, 0.0),
-        vertical: Vec3::new(0.0, 2.0, 0.0),
-        origin: Vec3::new(0.0, 0.25, -4.0),
-    };
+    let camera = Camera::new(
+        Vec3::new(10.0, 0.3, -5.0),
+        Vec3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        9.0,
+        imgx as Dimension / imgy as Dimension,
+    );
     let mut color_buffer = ColorBuffer::new(imgx, imgy);
     let scene: Vec<Box<Model>> = vec![
         Box::new(WorldEntity {
@@ -99,14 +100,7 @@ fn render_scene() {
         }),
         Box::new(WorldEntity {
             shape: Box::new(Sphere {
-                center: Vec3::new(0.0, 0.0, -1.0),
-                radius: -0.475,
-            }),
-            material: Rc::new(Dielectric { ref_idx: 1.5 }),
-        }),
-        Box::new(WorldEntity {
-            shape: Box::new(Sphere {
-                center: Vec3::new(1.0, 0.0, 1.5),
+                center: Vec3::new(2.0, 0.0, -1.0),
                 radius: 0.5,
             }),
             material: Rc::new(Metal::new(
@@ -115,12 +109,12 @@ fn render_scene() {
                     green: 0.6,
                     blue: 0.2,
                 },
-                0.0,
+                0.3,
             )),
         }),
         Box::new(WorldEntity {
             shape: Box::new(Sphere {
-                center: Vec3::new(-1.0, 0.0, 2.0),
+                center: Vec3::new(-2.0, 0.0, -1.0),
                 radius: 0.5,
             }),
             material: Rc::new(Lambertian {
@@ -146,7 +140,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/009a-hollow-glass-sphere.png", &image_buffer).unwrap();
+    save_image("images/010-positionable-camera.png", &image_buffer).unwrap();
 }
 
 fn main() {
