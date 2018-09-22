@@ -25,6 +25,19 @@ impl Vec3 {
         Vec3 { x: x, y: y, z: z }
     }
 
+    pub fn random_in_unit_disk() -> Vec3 {
+        let mut rng = thread_rng();
+        loop {
+            let rx = rng.gen_range::<Dimension>(-1.0, 1.0);
+            let ry = rng.gen_range::<Dimension>(-1.0, 1.0);
+            let xx = rx * rx;
+            let yy = ry * ry;
+            if xx + yy < 1.0 {
+                return Vec3::new(rx, ry, 0.0);
+            }
+        }
+    }
+
     pub fn random_in_unit_sphere() -> Vec3 {
         let mut rng = thread_rng();
         loop {
