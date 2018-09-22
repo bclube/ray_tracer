@@ -69,12 +69,21 @@ fn render_scene() {
     let imgx = 400;
     let imgy = 200;
     let n_samples = 5000;
+    let look_from = Vec3::new(10.0, 0.3, -5.0);
+    let look_at = Vec3::new(0.0, 0.0, -1.0);
+    let up = Vec3::new(0.0, 1.0, 0.0);
+    let vert_fov_degrees = 9.0;
+    let aspect = imgx as Dimension / imgy as Dimension;
+    let aperture = 0.15;
+    let distance_to_focus = (look_from - look_at).length();
     let camera = Camera::new(
-        Vec3::new(10.0, 0.3, -5.0),
-        Vec3::new(0.0, 0.0, -1.0),
-        Vec3::new(0.0, 1.0, 0.0),
-        9.0,
-        imgx as Dimension / imgy as Dimension,
+        look_from,
+        look_at,
+        up,
+        vert_fov_degrees,
+        aspect,
+        aperture,
+        distance_to_focus,
     );
     let mut color_buffer = ColorBuffer::new(imgx, imgy);
     let scene: Vec<Box<Model>> = vec![
@@ -140,7 +149,7 @@ fn render_scene() {
         }
     }
     let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
-    save_image("images/010-positionable-camera.png", &image_buffer).unwrap();
+    save_image("images/011-depth-of-field.png", &image_buffer).unwrap();
 }
 
 fn main() {
