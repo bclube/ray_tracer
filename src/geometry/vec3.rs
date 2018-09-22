@@ -1,9 +1,11 @@
 use rand::{thread_rng, Rng};
 use std::f64;
+use std::f64::consts::PI;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 pub type Dimension = f64;
 pub const MAX_DIMENSION: Dimension = f64::MAX;
+pub const PI_DIMENSION: Dimension = PI;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
@@ -56,6 +58,13 @@ impl Vec3 {
         let yy = self.y * other.y;
         let zz = self.z * other.z;
         xx + yy + zz
+    }
+
+    pub fn cross(&self, other: Vec3) -> Vec3 {
+        let xx = self.y * other.z - self.z * other.y;
+        let yy = -(self.x * other.z - self.z * other.x);
+        let zz = self.x * other.y - self.y * other.x;
+        Vec3::new(xx, yy, zz)
     }
 }
 
