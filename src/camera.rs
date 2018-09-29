@@ -21,7 +21,6 @@ impl Camera {
         aperture: Dimension,
         focus_dist: Dimension,
     ) -> Camera {
-        let lens_radius = aperture / 2.0;
         let theta = vfov_degrees * PI_DIMENSION / 180.0;
         let half_height = (theta / 2.0).tan();
         let half_width = aspect_h_over_v * half_height;

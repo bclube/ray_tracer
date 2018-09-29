@@ -2,6 +2,7 @@ use geometry::ray::*;
 use geometry::vec3::*;
 use hit_detection::hitable::*;
 
+#[derive(Copy, Clone)]
 pub struct Sphere {
     pub center: Vec3,
     pub radius: Dimension,
@@ -10,6 +11,14 @@ pub struct Sphere {
 impl Hitable for Sphere {
     fn hit(&self, r: &Ray, t_min: Dimension, t_max: Dimension) -> Option<HitRecord> {
         hit_sphere(r, t_min, t_max, self.center, self.radius)
+    }
+}
+
+impl Sphere {
+    pub fn intersects(&self, other: &Sphere) -> bool {
+        let center_distance = (self.center - other.center).length();
+        let radius_sum = self.radius.abs() + other.radius.abs();
+        radius_sum > center_distance
     }
 }
 
