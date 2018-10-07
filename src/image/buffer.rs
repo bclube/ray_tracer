@@ -41,7 +41,7 @@ impl ImageBuffer {
         }
     }
     pub fn from_color_buffer(
-        color_buffer: ColorBuffer,
+        color_buffer: &ColorBuffer,
         bytes_per_color: BytesPerColor,
     ) -> ImageBuffer {
         let mut buffer = ImageBuffer::new(color_buffer.imgx, color_buffer.imgy, bytes_per_color);

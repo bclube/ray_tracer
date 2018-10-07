@@ -22,6 +22,7 @@ use image::write::*;
 use rand::{thread_rng, Rng};
 use std::io::{self, BufRead};
 use std::rc::*;
+use std::time::Instant;
 use surface::dielectric::*;
 use surface::lambertian::*;
 use surface::material::*;
@@ -201,22 +202,27 @@ fn render_scene() {
             (imgx, imgy, n_samples),
         ] {
             let mut color_buffer = ColorBuffer::new(imgx, imgy);
-            for j in (0..imgy).rev() {
-                for i in 0..imgx {
-                    let mut color_sample = ColorSample::BLACK;
-                    for _ in 0..n_samples {
-                        let u = (rng.gen_range::<Dimension>(0.0, 1.0) + i as Dimension)
-                            / imgx as Dimension;
-                        let v = (rng.gen_range::<Dimension>(0.0, 1.0) + j as Dimension)
-                            / imgy as Dimension;
+            let mut timer = Instant::now();
+            for sample in 0..n_samples {
+                let ru = rng.gen_range::<Dimension>(0.0, 1.0);
+                let rv = rng.gen_range::<Dimension>(0.0, 1.0);
+                for j in (0..imgy).rev() {
+                    let v = (rv + j as Dimension) / imgy as Dimension;
+                    for i in 0..imgx {
+                        let u = (ru + i as Dimension) / imgx as Dimension;
                         let ray = camera.get_ray(u, v);
-                        color_sample += color(ray, &scene);
+                        let color = color(ray, &scene);
+                        color_buffer.add_color(i, imgy - 1 - j, color);
                     }
-                    color_buffer.add_color(i, imgy - 1 - j, color_sample);
                 }
-                println!("row {}/{}", j, imgy);
+                if timer.elapsed().as_secs() >= 10 {
+                    timer = Instant::now();
+                    let image_buffer = ImageBuffer::from_color_buffer(&color_buffer, BytesPerColor::Two);
+                    save_image("images/012-random-scene.png", &image_buffer).unwrap();
+                }
+                println!("sample {}/{}", sample, n_samples);
             }
-            let image_buffer = ImageBuffer::from_color_buffer(color_buffer, BytesPerColor::Two);
+            let image_buffer = ImageBuffer::from_color_buffer(&color_buffer, BytesPerColor::Two);
             save_image("images/012-random-scene.png", &image_buffer).unwrap();
 
             println!("ok? ('yes' to use this world)");
