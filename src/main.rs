@@ -212,7 +212,7 @@ fn render_scene() {
                         let ray = camera.get_ray(u, v);
                         color_sample += color(ray, &scene);
                     }
-                    color_buffer.push_color(color_sample / n_samples);
+                    color_buffer.add_color(i, imgy - 1 - j, color_sample);
                 }
                 println!("row {}/{}", j, imgy);
             }

@@ -1,4 +1,5 @@
 use color::buffer::*;
+use color::sample::*;
 use image::convert::*;
 use png;
 
@@ -44,17 +45,25 @@ impl ImageBuffer {
         bytes_per_color: BytesPerColor,
     ) -> ImageBuffer {
         let mut buffer = ImageBuffer::new(color_buffer.imgx, color_buffer.imgy, bytes_per_color);
+        let sample_counts = color_buffer.sample_counts.iter().flat_map(|c| {
+            let c = *c as SamplePrecision;
+            vec![c, c, c]
+        });
+        let colors = color_buffer
+            .buffer
+            .iter()
+            .zip(sample_counts)
+            .map(|(c, n)| c / n)
+            .map(|c| gamma_2(c));
         match bytes_per_color {
             BytesPerColor::Two => {
-                for color in color_buffer.buffer {
-                    let color = gamma_2(color);
+                for color in colors {
                     let bytes = to_sixteen_bits(color).to_be_bytes();
                     buffer.buffer.extend(bytes.iter());
                 }
             }
             BytesPerColor::One => {
-                for color in color_buffer.buffer {
-                    let color = gamma_2(color);
+                for color in colors {
                     let byte = to_eight_bits(color);
                     buffer.buffer.push(byte);
                 }
