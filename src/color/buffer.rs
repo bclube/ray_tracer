@@ -28,4 +28,17 @@ impl ColorBuffer {
         self.buffer[idx2 + 1] += color.green;
         self.buffer[idx2 + 2] += color.blue;
     }
+
+    pub fn add_buffer(&mut self, other: ColorBuffer) {
+        for (cref, o) in self.buffer.iter_mut().zip(other.buffer.iter()) {
+            *cref += o;
+        }
+        for (cref, o) in self
+            .sample_counts
+            .iter_mut()
+            .zip(other.sample_counts.iter())
+        {
+            *cref += o;
+        }
+    }
 }

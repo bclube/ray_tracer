@@ -1,14 +1,14 @@
 use geometry::ray::*;
 use geometry::vec3::*;
 use hit_detection::hitable::*;
-use std::rc::*;
+use std::sync::Arc;
 use surface::material::*;
 use world::bounds::*;
 use world::model::*;
 
 pub struct WorldEntity {
-    pub shape: Box<Hitable>,
-    pub material: Rc<Material>,
+    pub shape: Box<HitableSS>,
+    pub material: Arc<MaterialSS>,
 }
 
 impl Model for WorldEntity {

@@ -1,6 +1,7 @@
 use geometry::ray::*;
 use geometry::vec3::*;
 
+#[derive(Copy, Clone)]
 pub struct Camera {
     pub horizontal: Vec3,
     pub lower_left: Vec3,

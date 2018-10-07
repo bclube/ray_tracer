@@ -13,3 +13,5 @@ pub trait Hitable {
     fn hit(&self, r: &Ray, t_min: Dimension, t_max: Dimension) -> Option<HitRecord>;
     fn bounds(&self) -> Option<Bounds>;
 }
+
+pub type HitableSS = Hitable + Send + Sync;

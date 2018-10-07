@@ -8,8 +8,8 @@ use world::model::*;
 
 pub struct Tree {
     bounds: Option<Bounds>,
-    pub left: Box<Model>,
-    pub right: Box<Model>,
+    pub left: Box<ModelSS>,
+    pub right: Box<ModelSS>,
 }
 
 pub enum SplitDim {
@@ -19,7 +19,7 @@ pub enum SplitDim {
 }
 
 impl Tree {
-    pub fn new(left: Box<Model>, right: Box<Model>) -> Tree {
+    pub fn new(left: Box<ModelSS>, right: Box<ModelSS>) -> Tree {
         let mut bounds: Option<Bounds> = None;
         if let Some(l) = left.bounds() {
             if let Some(r) = right.bounds() {
@@ -33,14 +33,14 @@ impl Tree {
         }
     }
 
-    pub fn from_list(list: &mut Vec<Box<Model>>) -> Box<Model> {
+    pub fn from_list(list: &mut Vec<Box<ModelSS>>) -> Box<ModelSS> {
         Tree::from_list_on_dimensions(list, &[SplitDim::X, SplitDim::Y, SplitDim::Z])
     }
 
     pub fn from_list_on_dimensions(
-        list: &mut Vec<Box<Model>>,
+        list: &mut Vec<Box<ModelSS>>,
         dimensions: &[SplitDim],
-    ) -> Box<Model> {
+    ) -> Box<ModelSS> {
         match list.len() {
             0 => panic!("No models in list: Tree::from_list()"),
             1 => list.remove(0),
