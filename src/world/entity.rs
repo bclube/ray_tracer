@@ -3,6 +3,7 @@ use geometry::vec3::*;
 use hit_detection::hitable::*;
 use std::rc::*;
 use surface::material::*;
+use world::bounds::*;
 use world::model::*;
 
 pub struct WorldEntity {
@@ -20,5 +21,9 @@ impl Model for WorldEntity {
         } else {
             None
         }
+    }
+
+    fn bounds(&self) -> Option<Bounds> {
+        self.shape.bounds()
     }
 }

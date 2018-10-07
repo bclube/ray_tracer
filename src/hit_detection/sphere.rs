@@ -1,6 +1,7 @@
 use geometry::ray::*;
 use geometry::vec3::*;
 use hit_detection::hitable::*;
+use world::bounds::*;
 
 #[derive(Copy, Clone)]
 pub struct Sphere {
@@ -11,6 +12,11 @@ pub struct Sphere {
 impl Hitable for Sphere {
     fn hit(&self, r: &Ray, t_min: Dimension, t_max: Dimension) -> Option<HitRecord> {
         hit_sphere(r, t_min, t_max, self.center, self.radius)
+    }
+
+    fn bounds(&self) -> Option<Bounds> {
+        let half = Vec3::new(self.radius, self.radius, self.radius);
+        Some(Bounds::new(self.center + half, self.center - half))
     }
 }
 

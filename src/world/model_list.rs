@@ -1,5 +1,6 @@
 use geometry::ray::*;
 use geometry::vec3::*;
+use world::bounds::*;
 use world::model::*;
 
 impl<'a> Model for &'a [Box<Model>] {
@@ -16,5 +17,9 @@ impl<'a> Model for &'a [Box<Model>] {
             }
         }
         closest_hit
+    }
+
+    fn bounds(&self) -> Option<Bounds> {
+        None
     }
 }

@@ -4,6 +4,7 @@ extern crate rand;
 
 mod camera;
 mod color;
+mod float_cmp;
 mod geometry;
 mod hit_detection;
 mod image;
@@ -25,10 +26,11 @@ use surface::dielectric::*;
 use surface::lambertian::*;
 use surface::material::*;
 use surface::metal::*;
+use world::bvh::*;
 use world::entity::*;
 use world::model::*;
 
-fn color(ray: Ray, scene: &Model) -> ColorSample {
+fn color(ray: Ray, scene: &Box<Model>) -> ColorSample {
     let mut attenuation = ColorSample::WHITE;
     let mut new_ray = ray;
     for _depth in 0..50 {
@@ -81,14 +83,14 @@ fn render_scene() {
     'new_scene: loop {
         let mut spheres: Vec<Sphere> = Vec::new();
         let mut rng = thread_rng();
-        let mut scene: Vec<Box<Model>> = Vec::new();
+        let mut center_spheres: Vec<Box<Model>> = Vec::new();
         // floor
         let sphere = Sphere {
             center: Vec3::new(0.0, -1e12, 0.0),
             radius: 1e12,
         };
         spheres.push(sphere);
-        scene.push(Box::new(WorldEntity {
+        let floor = Box::new(WorldEntity {
             shape: Box::new(sphere),
             material: Rc::new(Lambertian {
                 albedo: ColorSample {
@@ -97,14 +99,14 @@ fn render_scene() {
                     blue: 0.5,
                 },
             }),
-        }));
+        });
         // dielectric
         let sphere = Sphere {
             center: Vec3::new(0.0, 1.0, 0.0),
             radius: 1.0,
         };
         spheres.push(sphere);
-        scene.push(Box::new(WorldEntity {
+        center_spheres.push(Box::new(WorldEntity {
             shape: Box::new(sphere),
             material: Rc::new(Dielectric { ref_idx: 1.5 }),
         }));
@@ -114,7 +116,7 @@ fn render_scene() {
             radius: 1.0,
         };
         spheres.push(sphere);
-        scene.push(Box::new(WorldEntity {
+        center_spheres.push(Box::new(WorldEntity {
             shape: Box::new(sphere),
             material: Rc::new(Lambertian {
                 albedo: ColorSample {
@@ -130,7 +132,7 @@ fn render_scene() {
             radius: 1.0,
         };
         spheres.push(sphere);
-        scene.push(Box::new(WorldEntity {
+        center_spheres.push(Box::new(WorldEntity {
             shape: Box::new(sphere),
             material: Rc::new(Metal::new(
                 ColorSample {
@@ -142,6 +144,7 @@ fn render_scene() {
             )),
         }));
         // random sphere field
+        let mut sphere_field: Vec<Box<Model>> = Vec::new();
         for a in -11..=11 {
             for b in -11..=11 {
                 let material: Rc<Material> = match rng.gen_range::<Dimension>(0.0, 1.0) {
@@ -181,15 +184,20 @@ fn render_scene() {
                         break;
                     }
                 }
-                scene.push(Box::new(WorldEntity {
+                sphere_field.push(Box::new(WorldEntity {
                     shape: Box::new(new_sphere.expect("unable to place sphere")),
                     material: material,
                 }));
             }
         }
+        let sphere_field =
+            Tree::from_list_on_dimensions(&mut sphere_field, &[SplitDim::X, SplitDim::Z]);
+        let center_spheres = Tree::from_list_on_dimensions(&mut center_spheres, &[SplitDim::X]);
+        let mut scene: Vec<Box<Model>> = vec![floor, sphere_field, center_spheres];
+        let scene = Tree::from_list_on_dimensions(&mut scene, &[SplitDim::Y]);
         for (imgx, imgy, n_samples) in vec![
             (imgx / 4, imgy / 4, 1),
-            (imgx / 2, imgy / 2, 10),
+            (imgx, imgy, 1),
             (imgx, imgy, n_samples),
         ] {
             let mut color_buffer = ColorBuffer::new(imgx, imgy);
@@ -202,7 +210,7 @@ fn render_scene() {
                         let v = (rng.gen_range::<Dimension>(0.0, 1.0) + j as Dimension)
                             / imgy as Dimension;
                         let ray = camera.get_ray(u, v);
-                        color_sample += color(ray, &scene.as_slice());
+                        color_sample += color(ray, &scene);
                     }
                     color_buffer.push_color(color_sample / n_samples);
                 }

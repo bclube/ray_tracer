@@ -1,6 +1,7 @@
 use geometry::ray::*;
 use geometry::vec3::*;
 use hit_detection::hitable::*;
+use world::bounds::*;
 
 impl<'a> Hitable for &'a [Box<Hitable>] {
     fn hit(&self, ray: &Ray, t_min: Dimension, t_max: Dimension) -> Option<HitRecord> {
@@ -13,5 +14,9 @@ impl<'a> Hitable for &'a [Box<Hitable>] {
                 acc
             }
         })
+    }
+
+    fn bounds(&self) -> Option<Bounds> {
+        None
     }
 }
