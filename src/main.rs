@@ -61,11 +61,10 @@ fn color(ray: Ray, scene: &Box<Model>) -> ColorSample {
     ColorSample::BLACK
 }
 
-fn render_scene() {
-    let imgx = 600;
-    let imgy = 400;
-    let n_samples = 1000;
+fn random_scene(imgx: usize, imgy: usize) -> (Box<Model>, Camera) {
+    let mut rng = thread_rng();
     let look_from = Vec3::new(20.0, 1.9, 5.0);
+    let look_from = Vec3::new(rx, 1.9, 5.0);
     let look_at = Vec3::new(0.0, 0.5, 0.0);
     let up = Vec3::new(0.0, 1.0, 0.0);
     let vert_fov_degrees = 10.0;
@@ -81,121 +80,129 @@ fn render_scene() {
         aperture,
         distance_to_focus,
     );
-    'new_scene: loop {
-        let mut spheres: Vec<Sphere> = Vec::new();
-        let mut rng = thread_rng();
-        let mut center_spheres: Vec<Box<Model>> = Vec::new();
-        // floor
-        let sphere = Sphere {
-            center: Vec3::new(0.0, -1e12, 0.0),
-            radius: 1e12,
-        };
-        spheres.push(sphere);
-        let floor = Box::new(WorldEntity {
-            shape: Box::new(sphere),
-            material: Rc::new(Lambertian {
-                albedo: ColorSample {
-                    red: 0.5,
-                    green: 0.5,
-                    blue: 0.5,
-                },
-            }),
-        });
-        // dielectric
-        let sphere = Sphere {
-            center: Vec3::new(0.0, 1.0, 0.0),
-            radius: 1.0,
-        };
-        spheres.push(sphere);
-        center_spheres.push(Box::new(WorldEntity {
-            shape: Box::new(sphere),
-            material: Rc::new(Dielectric { ref_idx: 1.5 }),
-        }));
-        // lambertian
-        let sphere = Sphere {
-            center: Vec3::new(-4.0, 1.0, 0.0),
-            radius: 1.0,
-        };
-        spheres.push(sphere);
-        center_spheres.push(Box::new(WorldEntity {
-            shape: Box::new(sphere),
-            material: Rc::new(Lambertian {
-                albedo: ColorSample {
-                    red: 0.4,
-                    green: 0.2,
-                    blue: 0.1,
-                },
-            }),
-        }));
-        // metal
-        let sphere = Sphere {
-            center: Vec3::new(4.0, 1.0, 0.0),
-            radius: 1.0,
-        };
-        spheres.push(sphere);
-        center_spheres.push(Box::new(WorldEntity {
-            shape: Box::new(sphere),
-            material: Rc::new(Metal::new(
-                ColorSample {
-                    red: 0.7,
-                    green: 0.6,
-                    blue: 0.5,
-                },
-                0.0,
-            )),
-        }));
-        // random sphere field
-        let mut sphere_field: Vec<Box<Model>> = Vec::new();
-        for a in -11..=11 {
-            for b in -11..=11 {
-                let material: Rc<Material> = match rng.gen_range::<Dimension>(0.0, 1.0) {
-                    v if v < 0.8 => Rc::new(Lambertian {
-                        albedo: ColorSample {
-                            red: rng.gen_range::<Dimension>(0.0, 1.0)
-                                * rng.gen_range::<Dimension>(0.0, 1.0),
-                            green: rng.gen_range::<Dimension>(0.0, 1.0)
-                                * rng.gen_range::<Dimension>(0.0, 1.0),
-                            blue: rng.gen_range::<Dimension>(0.0, 1.0)
-                                * rng.gen_range::<Dimension>(0.0, 1.0),
-                        },
-                    }),
-                    v if v < 0.95 => Rc::new(Metal::new(
-                        ColorSample {
-                            red: rng.gen_range::<Dimension>(0.5, 1.0),
-                            green: rng.gen_range::<Dimension>(0.5, 1.0),
-                            blue: rng.gen_range::<Dimension>(0.5, 1.0),
-                        },
-                        rng.gen_range::<Dimension>(0.0, 0.5),
-                    )),
-                    _ => Rc::new(Dielectric { ref_idx: 1.5 }),
+    let mut spheres: Vec<Sphere> = Vec::new();
+    let mut center_spheres: Vec<Box<Model>> = Vec::new();
+    // floor
+    let sphere = Sphere {
+        center: Vec3::new(0.0, -1e12, 0.0),
+        radius: 1e12,
+    };
+    spheres.push(sphere);
+    let floor = Box::new(WorldEntity {
+        shape: Box::new(sphere),
+        material: Rc::new(Lambertian {
+            albedo: ColorSample {
+                red: 0.5,
+                green: 0.5,
+                blue: 0.5,
+            },
+        }),
+    });
+    // dielectric
+    let sphere = Sphere {
+        center: Vec3::new(0.0, 1.0, 0.0),
+        radius: 1.0,
+    };
+    spheres.push(sphere);
+    center_spheres.push(Box::new(WorldEntity {
+        shape: Box::new(sphere),
+        material: Rc::new(Dielectric { ref_idx: 1.5 }),
+    }));
+    // lambertian
+    let sphere = Sphere {
+        center: Vec3::new(-4.0, 1.0, 0.0),
+        radius: 1.0,
+    };
+    spheres.push(sphere);
+    center_spheres.push(Box::new(WorldEntity {
+        shape: Box::new(sphere),
+        material: Rc::new(Lambertian {
+            albedo: ColorSample {
+                red: 0.4,
+                green: 0.2,
+                blue: 0.1,
+            },
+        }),
+    }));
+    // metal
+    let sphere = Sphere {
+        center: Vec3::new(4.0, 1.0, 0.0),
+        radius: 1.0,
+    };
+    spheres.push(sphere);
+    center_spheres.push(Box::new(WorldEntity {
+        shape: Box::new(sphere),
+        material: Rc::new(Metal::new(
+            ColorSample {
+                red: 0.7,
+                green: 0.6,
+                blue: 0.5,
+            },
+            0.0,
+        )),
+    }));
+    // random sphere field
+    let mut sphere_field: Vec<Box<Model>> = Vec::new();
+    for a in -11..=11 {
+        for b in -11..=11 {
+            let material: Rc<Material> = match rng.gen_range::<Dimension>(0.0, 1.0) {
+                v if v < 0.8 => Rc::new(Lambertian {
+                    albedo: ColorSample {
+                        red: rng.gen_range::<Dimension>(0.0, 1.0)
+                            * rng.gen_range::<Dimension>(0.0, 1.0),
+                        green: rng.gen_range::<Dimension>(0.0, 1.0)
+                            * rng.gen_range::<Dimension>(0.0, 1.0),
+                        blue: rng.gen_range::<Dimension>(0.0, 1.0)
+                            * rng.gen_range::<Dimension>(0.0, 1.0),
+                    },
+                }),
+                v if v < 0.95 => Rc::new(Metal::new(
+                    ColorSample {
+                        red: rng.gen_range::<Dimension>(0.5, 1.0),
+                        green: rng.gen_range::<Dimension>(0.5, 1.0),
+                        blue: rng.gen_range::<Dimension>(0.5, 1.0),
+                    },
+                    rng.gen_range::<Dimension>(0.0, 0.5),
+                )),
+                _ => Rc::new(Dielectric { ref_idx: 1.5 }),
+            };
+            let mut new_sphere: Option<Sphere> = None;
+            for _ in 0..1000 {
+                let sphere = Sphere {
+                    center: Vec3 {
+                        x: a as Dimension + rng.gen_range::<Dimension>(0.0, 0.9),
+                        y: 0.2,
+                        z: b as Dimension + rng.gen_range::<Dimension>(0.0, 0.9),
+                    },
+                    radius: 0.2,
                 };
-                let mut new_sphere: Option<Sphere> = None;
-                for _ in 0..1000 {
-                    let sphere = Sphere {
-                        center: Vec3 {
-                            x: a as Dimension + rng.gen_range::<Dimension>(0.0, 0.9),
-                            y: 0.2,
-                            z: b as Dimension + rng.gen_range::<Dimension>(0.0, 0.9),
-                        },
-                        radius: 0.2,
-                    };
-                    if !spheres.iter().any(|&s| s.intersects(&sphere)) {
-                        spheres.push(sphere);
-                        new_sphere = Some(sphere);
-                        break;
-                    }
+                if !spheres.iter().any(|&s| s.intersects(&sphere)) {
+                    spheres.push(sphere);
+                    new_sphere = Some(sphere);
+                    break;
                 }
-                sphere_field.push(Box::new(WorldEntity {
-                    shape: Box::new(new_sphere.expect("unable to place sphere")),
-                    material: material,
-                }));
             }
+            sphere_field.push(Box::new(WorldEntity {
+                shape: Box::new(new_sphere.expect("unable to place sphere")),
+                material: material,
+            }));
         }
-        let sphere_field =
-            Tree::from_list_on_dimensions(&mut sphere_field, &[SplitDim::X, SplitDim::Z]);
-        let center_spheres = Tree::from_list_on_dimensions(&mut center_spheres, &[SplitDim::X]);
-        let mut scene: Vec<Box<Model>> = vec![floor, sphere_field, center_spheres];
-        let scene = Tree::from_list_on_dimensions(&mut scene, &[SplitDim::Y]);
+    }
+    let sphere_field =
+        Tree::from_list_on_dimensions(&mut sphere_field, &[SplitDim::X, SplitDim::Z]);
+    let center_spheres = Tree::from_list_on_dimensions(&mut center_spheres, &[SplitDim::X]);
+    let mut scene: Vec<Box<Model>> = vec![floor, sphere_field, center_spheres];
+    let scene = Tree::from_list_on_dimensions(&mut scene, &[SplitDim::Y]);
+    (scene, camera)
+}
+
+fn render_scene() {
+    let imgx = 600;
+    let imgy = 400;
+    let n_samples = 1000;
+    let mut rng = thread_rng();
+    'new_scene: loop {
+        let (scene, camera) = random_scene(imgx, imgy);
         for (imgx, imgy, n_samples) in vec![
             (imgx / 4, imgy / 4, 1),
             (imgx, imgy, 1),
